@@ -1,6 +1,6 @@
 ---
 mode: 'agent'
-description: 'Opensquad — Multi-agent orchestration framework. Create and run AI squads for your business.'
+description: 'opensquad — Multi-agent orchestration framework. Create and run AI squads for your business.'
 ---
 
 # Opensquad

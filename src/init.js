@@ -23,7 +23,7 @@ const IDES = [
   { label: '──────────────────', separator: true },
   { label: 'Cursor', value: 'cursor', disabled: true },
   { label: 'Windsurf', value: 'windsurf', disabled: true },
-  { label: 'VS Code + Copilot', value: 'vscode-copilot', disabled: true },
+  { label: 'VS Code + Copilot', value: 'vscode-copilot' },
 ];
 
 export async function init(targetDir, options = {}) {
@@ -101,6 +101,10 @@ export async function init(targetDir, options = {}) {
       console.log(`  ${t('step1Codex')}\n`);
     } else if (ide === 'antigravity') {
       console.log(`  ${t('step1Antigravity')}\n`);
+    } else if (ide === 'vscode-copilot') {
+      console.log(`  ${t('step1VsCodeCopilot')}`);
+      console.log(`  ${t('step2VsCodeCopilot')}`);
+      console.log(`  ${t('step3VsCodeCopilot')}\n`);
     }
   }
 }
@@ -180,6 +184,8 @@ async function copyIdeTemplates(ides, targetDir) {
 
     for (const entry of entries) {
       const relativePath = entry.slice(ideSrcDir.length + 1);
+      // settings.json for vscode-copilot is handled by mergeVsCodeSettings — skip here
+      if (ide === 'vscode-copilot' && relativePath.replace(/\\/g, '/') === '.vscode/settings.json') continue;
       if (writtenPaths.has(relativePath)) continue;
       writtenPaths.add(relativePath);
 
@@ -190,6 +196,46 @@ async function copyIdeTemplates(ides, targetDir) {
       console.log(`  ${t('createdFile', { path: relativePath })}`);
     }
   }
+
+  if (ides.includes('vscode-copilot')) {
+    await mergeVsCodeSettings(targetDir);
+  }
+}
+
+async function mergeVsCodeSettings(targetDir) {
+  const settingsPath = join(targetDir, '.vscode', 'settings.json');
+
+  let exists = false;
+  try {
+    await stat(settingsPath);
+    exists = true;
+  } catch {
+    // doesn't exist
+  }
+
+  if (!exists) {
+    const templateBase = join(TEMPLATES_DIR, 'ide-templates', 'vscode-copilot', '.vscode', 'settings.json');
+    await mkdir(join(targetDir, '.vscode'), { recursive: true });
+    await cp(templateBase, settingsPath);
+    return;
+  }
+
+  const raw = await readFile(settingsPath, 'utf-8');
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    console.log(`  ⚠️  .vscode/settings.json has invalid JSON — skipping merge. Add manually: "chat.promptFilesLocations": [".github/prompts"]`);
+    return;
+  }
+
+  if (!parsed['chat.promptFilesLocations']) {
+    parsed['chat.promptFilesLocations'] = ['.github/prompts'];
+  } else if (!parsed['chat.promptFilesLocations'].includes('.github/prompts')) {
+    parsed['chat.promptFilesLocations'].push('.github/prompts');
+  }
+
+  await writeFile(settingsPath, JSON.stringify(parsed, null, 2), 'utf-8');
 }
 
 export async function getTemplateEntries(dir) {
