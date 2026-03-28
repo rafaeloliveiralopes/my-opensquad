@@ -20,7 +20,9 @@ export function PhaserGame() {
       parent: container,
       width: w,
       height: h,
-      pixelArt: true,
+      pixelArt: false,          // disabled globally so text renders smooth
+      antialias: false,          // keep pixel art look for sprites
+      roundPixels: true,         // snap sprites to whole pixels
       backgroundColor: '#1a1420',
       scene: [OfficeScene],
       scale: {
@@ -71,7 +73,7 @@ export function PhaserGame() {
       style={{
         flex: 1,
         overflow: 'hidden',
-        imageRendering: 'pixelated',
+        imageRendering: 'auto',
       }}
     />
   );

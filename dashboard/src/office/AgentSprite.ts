@@ -1,10 +1,10 @@
 import Phaser from 'phaser';
-import { avatarKeys, DESK_KEYS, type CharacterName } from './assetKeys';
+import { avatarKeys, DESK_KEYS, FURNITURE_KEYS, type CharacterName } from './assetKeys';
 import { COLORS } from './palette';
 import type { Agent, AgentStatus } from '@/types/state';
 
-// Avatar display size (original is 960x640, scale to fit ~32px wide)
-const AVATAR_SCALE = 32 / 960;
+// Avatar display scale — characters should be prominent at desk
+const AVATAR_SCALE = 0.8;
 
 // Status → badge color mapping
 const STATUS_COLORS: Record<AgentStatus, number> = {
@@ -15,13 +15,26 @@ const STATUS_COLORS: Record<AgentStatus, number> = {
   delivering: COLORS.statusWorking,
 };
 
+// Status → display label
+const STATUS_LABELS: Record<AgentStatus, string> = {
+  idle: 'idle',
+  working: 'working',
+  done: 'done',
+  checkpoint: 'checkpoint',
+  delivering: 'delivering',
+};
+
 export class AgentSprite {
   private scene: Phaser.Scene;
+  private deskTable: Phaser.GameObjects.Image;
+  private deskShadow: Phaser.GameObjects.Graphics;
   private desk: Phaser.GameObjects.Image;
+  private coffeeMug: Phaser.GameObjects.Image;
   private avatar: Phaser.GameObjects.Image;
   private nameText: Phaser.GameObjects.Text;
   private badgeBg: Phaser.GameObjects.Graphics;
-  private badgeDot: Phaser.GameObjects.Graphics;
+  private statusDot: Phaser.GameObjects.Graphics;
+  private statusText: Phaser.GameObjects.Text;
   private animTimer?: Phaser.Time.TimerEvent;
   private agent: Agent;
   private characterName: CharacterName;
@@ -40,37 +53,104 @@ export class AgentSprite {
     this.characterName = characterName;
     this.deskVariant = deskVariant;
 
-    const deskKey = this.getDeskKey(agent.status);
-    this.desk = scene.add.image(x, y, deskKey).setOrigin(0.5, 0.5);
-    this.desk.setDepth(y);
+    // === VERTICAL LAYOUT (sprites, top to bottom on screen) ===
+    // desk_wood: 96x64 @ 1.3x = 125x83px  → y-42 to y+42
+    // desktop_set: ~48x40 @ 1.3x = 62x52px → y-56 to y-4  (center at y-30)
+    // avatar: 48x51 @ 0.8x = 38x41px        → y-91 to y-50 (center at y-70)
+    //
+    // Depth order (low = behind, high = front):
+    //   avatar     → y        (seated character, lowest — desk will cover lower body)
+    //   desk_wood  → y+1      (desk surface IN FRONT of avatar → covers avatar's lower half)
+    //   monitor    → y+2      (on desk surface, screen faces viewer)
+    //   coffee mug → y+3      (foreground item on front desk edge)
+    //   label      → 900/901  (always on top)
+    //
+    // Result: avatar fully visible above monitor, lower body hidden by desk → seated look
+    // =========================================
 
+    // Avatar — positioned further behind the desk so head/torso is clearly visible
     const avatarKey = this.getAvatarKey(agent.status);
-    this.avatar = scene.add.image(x, y - 20, avatarKey)
-      .setOrigin(0.5, 1)
-      .setScale(AVATAR_SCALE);
-    this.avatar.setDepth(y + 1);
+    this.avatar = scene.add.image(x, y - 70, avatarKey)
+      .setOrigin(0.5, 0.5)
+      .setScale(AVATAR_SCALE)
+      .setDepth(y);  // LOWEST depth — desk and monitor render in front
 
+    // Desk table surface — renders IN FRONT of avatar (covers lower body)
+    this.deskTable = scene.add.image(x, y, FURNITURE_KEYS.deskWood)
+      .setOrigin(0.5, 0.5)
+      .setScale(1.3)
+      .setDepth(y + 1);
+
+    // Monitor — screen-facing (_down orientation), sits on desk surface
+    const deskKey = this.getDeskKey(agent.status);
+    this.desk = scene.add.image(x, y - 30, deskKey)
+      .setOrigin(0.5, 0.5)
+      .setScale(1.3)
+      .setDepth(y + 2);  // On top of desk surface, screen visible to viewer
+
+    // Coffee mug — right side of desk, away from monitor
+    this.coffeeMug = scene.add.image(x + 42, y + 8, 'furniture_coffee_mug')
+      .setOrigin(0.5, 1).setScale(1.4).setDepth(y + 3);
+
+    // Shadow (unused graphics object kept for destroy() compatibility)
+    this.deskShadow = scene.add.graphics();
+    this.deskShadow.setDepth(y - 1);
+
+    // Name badge — above avatar head (avatar center y-70, head top ≈ y-91, badge at y-140)
+    // badge height = 44px → badge bottom at y-96, leaving 5px gap above avatar top
+    const labelY = y - 140;
+
+    // Background pill behind name + status
     this.badgeBg = scene.add.graphics();
-    this.badgeDot = scene.add.graphics();
 
-    this.nameText = scene.add.text(x, y + 20, agent.name, {
-      fontFamily: 'monospace',
-      fontSize: '7px',
+    // Name text — bold, clean, high contrast
+    this.nameText = scene.add.text(x, labelY + 5, agent.name, {
+      fontFamily: '"Segoe UI", "Helvetica Neue", Arial, sans-serif',
+      fontSize: '16px',
+      fontStyle: 'bold',
       color: '#ffffff',
       align: 'center',
+      stroke: '#000000',
+      strokeThickness: 4,
+      resolution: 2,
     }).setOrigin(0.5, 0);
-    this.nameText.setDepth(y + 10);
+    this.nameText.setDepth(901);
 
-    this.drawBadge(x, y + 20, agent);
+    // Status dot
+    this.statusDot = scene.add.graphics();
+
+    // Status text — colored with outline
+    const statusColor = this.getStatusHexColor(agent.status);
+    this.statusText = scene.add.text(x, labelY + 24, STATUS_LABELS[agent.status], {
+      fontFamily: '"Segoe UI", "Helvetica Neue", Arial, sans-serif',
+      fontSize: '13px',
+      fontStyle: 'bold',
+      color: statusColor,
+      align: 'center',
+      stroke: '#000000',
+      strokeThickness: 3,
+      resolution: 2,
+    }).setOrigin(0.5, 0);
+    this.statusText.setDepth(901);
+
+    // Draw background and status dot
+    this.drawLabelBackground(x, labelY);
+    this.drawStatusDot(x, labelY + 22, agent.status);
+
     this.startAnimation(agent.status);
   }
 
+  private getStatusHexColor(status: AgentStatus): string {
+    const num = STATUS_COLORS[status] ?? COLORS.statusIdle;
+    return '#' + num.toString(16).padStart(6, '0');
+  }
+
   private getDeskKey(status: AgentStatus): string {
-    const variant = this.deskVariant;
+    // Using _down orientation — we see the screen, avatar sits behind monitor
     if (status === 'working' || status === 'delivering') {
-      return variant === 'black' ? DESK_KEYS.blackCoding : DESK_KEYS.whiteCoding;
+      return this.deskVariant === 'black' ? DESK_KEYS.blackCoding : DESK_KEYS.whiteCoding;
     }
-    return variant === 'black' ? DESK_KEYS.blackIdle : DESK_KEYS.whiteIdle;
+    return this.deskVariant === 'black' ? DESK_KEYS.blackIdle : DESK_KEYS.whiteIdle;
   }
 
   private getAvatarKey(status: AgentStatus): string {
@@ -86,20 +166,25 @@ export class AgentSprite {
     }
   }
 
-  private drawBadge(x: number, y: number, agent: Agent): void {
-    const textW = this.nameText.width;
-    const badgeW = textW + 16;
-    const badgeH = 12;
-    const badgeX = x - badgeW / 2;
+  private drawLabelBackground(x: number, labelY: number): void {
+    const nameW = Math.max(this.nameText.width, this.statusText.width + 18);
+    const bgW = nameW + 20;
+    const bgH = 44;
+    // Solid dark background with rounded corners
+    this.badgeBg.fillStyle(0x1a1225, 0.95);
+    this.badgeBg.fillRoundedRect(x - bgW / 2, labelY, bgW, bgH, 5);
+    // Subtle border
+    this.badgeBg.lineStyle(1, 0x6a5a80, 0.4);
+    this.badgeBg.strokeRoundedRect(x - bgW / 2, labelY, bgW, bgH, 4);
+    this.badgeBg.setDepth(900);
+  }
 
-    this.badgeBg.fillStyle(COLORS.nameCardBg, 0.85);
-    this.badgeBg.fillRoundedRect(badgeX, y - 1, badgeW, badgeH, 3);
-    this.badgeBg.setDepth(y + 9);
-
-    const dotColor = STATUS_COLORS[agent.status] ?? COLORS.statusIdle;
-    this.badgeDot.fillStyle(dotColor, 1);
-    this.badgeDot.fillCircle(badgeX + 5, y + badgeH / 2 - 1, 2);
-    this.badgeDot.setDepth(y + 11);
+  private drawStatusDot(x: number, statusY: number, status: AgentStatus): void {
+    const dotColor = STATUS_COLORS[status] ?? COLORS.statusIdle;
+    const textW = Math.max(this.statusText.width, 24);
+    this.statusDot.fillStyle(dotColor, 1);
+    this.statusDot.fillCircle(x - textW / 2 - 5, statusY + 8, 3);
+    this.statusDot.setDepth(901);
   }
 
   private startAnimation(status: AgentStatus): void {
@@ -156,19 +241,31 @@ export class AgentSprite {
     this.animTimer?.destroy();
     this.startAnimation(agent.status);
 
-    this.badgeDot.clear();
+    // Update status text and dot
+    this.statusText.setText(STATUS_LABELS[agent.status]);
+    this.statusText.setColor(this.getStatusHexColor(agent.status));
+
+    this.statusDot.clear();
     const dotColor = STATUS_COLORS[agent.status] ?? COLORS.statusIdle;
-    this.badgeDot.fillStyle(dotColor, 1);
-    const badgeX = this.nameText.x - (this.nameText.width + 16) / 2;
-    this.badgeDot.fillCircle(badgeX + 5, this.nameText.y + 5, 2);
+    this.statusDot.fillStyle(dotColor, 1);
+    const textW = Math.max(this.statusText.width, 24);
+    this.statusDot.fillCircle(
+      this.statusText.x - textW / 2 - 5,
+      this.statusText.y + 8,
+      3,
+    );
   }
 
   destroy(): void {
     this.animTimer?.destroy();
+    this.deskTable.destroy();
+    this.deskShadow.destroy();
     this.desk.destroy();
+    this.coffeeMug.destroy();
     this.avatar.destroy();
     this.nameText.destroy();
     this.badgeBg.destroy();
-    this.badgeDot.destroy();
+    this.statusDot.destroy();
+    this.statusText.destroy();
   }
 }

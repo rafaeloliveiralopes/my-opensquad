@@ -25,7 +25,6 @@ const TEMPLATES_DIR = join(__dirname, '..', 'templates');
 
 const PROTECTED_PATHS = [
   '_opensquad/_memory',
-  '_opensquad/_investigations',
   'agents',
   'squads',
 ];

@@ -120,7 +120,7 @@ For each target in `investigation.targets`:
 2. Dispatch Design subagent:
    - Read `_opensquad/core/prompts/design.prompt.md`
    - Provide: path to discovery.yaml, paths to investigation results (if any)
-   - The Design phase handles: best-practices consultation, web research, extraction, skill discovery, design presentation
+   - The Design phase handles: best-practices consultation, web research, extraction, skill discovery, design presentation, template selection (optional — triggered when the squad includes an image skill)
    - Output: `squads/{code}/_build/design.yaml`
 
 3. Validate: `design.yaml` exists and has agents and pipeline defined

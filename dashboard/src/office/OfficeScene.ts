@@ -52,6 +52,12 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Set all loaded textures to NEAREST filter for crisp pixel art
+    this.textures.list && Object.values(this.textures.list).forEach((tex) => {
+      if (tex.key !== '__DEFAULT' && tex.key !== '__MISSING') {
+        tex.setFilter(Phaser.Textures.FilterMode.NEAREST);
+      }
+    });
 
     this.roomBuilder = new RoomBuilder(this);
 
@@ -68,38 +74,52 @@ export class OfficeScene extends Phaser.Scene {
   }
 
   private renderScene(agents: Agent[]): void {
+    // Auto-assign desk positions if all agents are at the same spot (default 1,1)
+    const allSameDesk = agents.length > 1 &&
+      agents.every(a => a.desk.col === agents[0].desk.col && a.desk.row === agents[0].desk.row);
+    if (allSameDesk) {
+      const cols = Math.min(agents.length, 3); // max 3 columns
+      agents = agents.map((a, i) => ({
+        ...a,
+        desk: { col: (i % cols) + 1, row: Math.floor(i / cols) + 1 },
+      }));
+    }
+
     let maxCol = 0, maxRow = 0;
     for (const agent of agents) {
       maxCol = Math.max(maxCol, agent.desk.col);
       maxRow = Math.max(maxRow, agent.desk.row);
     }
-    const roomW = maxCol * CELL_W + MARGIN * 2;
-    const roomH = maxRow * CELL_H + MARGIN * 2 + WALL_H;
 
+    // Wider cells for comfortable spacing between agents + labels
+    const cellW = CELL_W + 64;   // 160px per cell (wider for desk tables + decorations)
+    const cellH = CELL_H + 80;   // 176px per cell (label + monitor + desk + avatar)
 
+    const roomW = Math.max(maxCol * cellW + MARGIN * 2, 580);
+    // Extra space below desk grid for lounge area
+    const loungeSpace = CELL_H + 48;
+    const roomH = maxRow * cellH + MARGIN * 2 + WALL_H + loungeSpace;
 
     this.clearScene();
     this.roomBuilder.build(roomW, roomH);
 
     for (let i = 0; i < agents.length; i++) {
       const agent = agents[i];
-      const x = (agent.desk.col - 1) * CELL_W + MARGIN + CELL_W / 2;
-      const y = (agent.desk.row - 1) * CELL_H + MARGIN + WALL_H + CELL_H / 2;
+      const x = (agent.desk.col - 1) * cellW + MARGIN + cellW / 2;
+      const y = (agent.desk.row - 1) * cellH + MARGIN + WALL_H + cellH / 2;
       const characterName = CHARACTER_NAMES[i % CHARACTER_NAMES.length];
       const deskVariant = i % 2 === 0 ? 'black' : 'white';
       const agentSprite = new AgentSprite(this, x, y, characterName, deskVariant, agent);
       this.agentSprites.set(agent.id, agentSprite);
     }
 
-    // Fit room in viewport
+    // Fit room in viewport with slight padding
     const cam = this.cameras.main;
-    const scaleX = cam.width / roomW;
-    const scaleY = cam.height / roomH;
+    const scaleX = cam.width / (roomW + 32);
+    const scaleY = cam.height / (roomH + 32);
     const zoom = Math.min(scaleX, scaleY, 2);
     cam.setZoom(zoom);
     cam.centerOn(roomW / 2, roomH / 2);
-
-
   }
 
   private clearScene(): void {

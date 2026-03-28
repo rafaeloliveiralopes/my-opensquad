@@ -31,7 +31,7 @@ Take a screenshot of the current dashboard state before any changes.
 
 **Take screenshot via Playwright CLI** (Bash tool, NOT MCP Playwright tools):
 ```bash
-npx playwright screenshot --browser chromium "URL" "/tmp/dashboard-before.png" --full-page
+npx playwright screenshot --browser chromium "URL" "/tmp/dashboard-before.png" --viewport-size "1400x900"
 ```
 If `npx playwright screenshot` is unavailable, use a small inline Playwright script.
 
@@ -69,7 +69,7 @@ Based on diagnosis, propose an action plan:
 
 **Layer 1 — Screenshot:**
 ```bash
-npx playwright screenshot --browser chromium "URL" "/tmp/dashboard-after.png" --full-page
+npx playwright screenshot --browser chromium "URL" "/tmp/dashboard-after.png" --viewport-size "1400x900"
 ```
 
 **Layer 2 — Automated quality checklist:**
@@ -131,7 +131,7 @@ Auto-detect the dashboard URL (same logic as Phase 2):
 
 Take screenshot via Playwright CLI:
 ```bash
-npx playwright screenshot --browser chromium "URL" "/tmp/sprite-review-before.png" --full-page
+npx playwright screenshot --browser chromium "URL" "/tmp/sprite-review-before.png" --viewport-size "1400x900"
 ```
 If `npx playwright screenshot` is unavailable, use a small inline Playwright script.
 
@@ -236,7 +236,7 @@ If a group has no failing sprites, skip it.
 After subagents complete, take a new screenshot:
 
 ```bash
-npx playwright screenshot --browser chromium "URL" "/tmp/sprite-review-iter-N.png" --full-page
+npx playwright screenshot --browser chromium "URL" "/tmp/sprite-review-iter-N.png" --viewport-size "1400x900"
 ```
 
 (Increment N each iteration: `iter-1.png`, `iter-2.png`, etc.)
