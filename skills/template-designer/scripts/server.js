@@ -20,7 +20,7 @@ function getNewestHtml() {
       .filter(f => f.endsWith('.html'))
       .map(f => ({ name: f, mtime: fs.statSync(path.join(CONTENT_DIR, f)).mtimeMs }))
       .sort((a, b) => b.mtime - a.mtime);
-    return files.length > 0 ? files[0].name : null;
+    return files.length > 0 ? files[0] : null;
   } catch { return null; }
 }
 
@@ -78,12 +78,15 @@ const server = http.createServer((req, res) => {
   }
 
   // Serve newest HTML
-  const newest = getNewestHtml();
-  if (!newest) {
+  const entry = getNewestHtml();
+  if (!entry) {
     res.writeHead(200, { 'Content-Type': 'text/html' });
     res.end('<html><body style="background:#111;color:#aaa;display:flex;align-items:center;justify-content:center;height:100vh;font-family:sans-serif"><p>Waiting for content...</p></body></html>');
     return;
   }
+
+  const newest = entry.name;
+  const lastModified = new Date(entry.mtime).toUTCString();
 
   // Clear events when served file changes
   if (newest !== lastServedFile) {
@@ -106,8 +109,8 @@ const server = http.createServer((req, res) => {
     html = wrapInFrame(html);
   }
 
-  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
-  res.end(html);
+  res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8', 'Last-Modified': lastModified });
+  res.end(req.method === 'HEAD' ? '' : html);
 });
 
 server.listen(0, BIND_HOST, () => {
