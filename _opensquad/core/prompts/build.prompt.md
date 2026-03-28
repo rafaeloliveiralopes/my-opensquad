@@ -38,13 +38,13 @@ Generate these files directly — they are compilations of data already gathered
 
    ## Técnico (específico do squad)
    ```
-7b. `squads/{code}/_memory/runs.md` — empty run history log:
-   ```markdown
-   # Run History: {squad-name}
+   - `squads/{code}/_memory/runs.md` — empty run history log:
+     ```markdown
+     # Run History: {squad-name}
 
-   | Data | Run ID | Tema | Output | Resultado |
-   |------|--------|------|--------|-----------|
-   ```
+     | Data | Run ID | Tema | Output | Resultado |
+     |------|--------|------|--------|-----------|
+     ```
 8. `squads/{code}/output/.gitkeep` — empty output directory marker (Write tool, empty content — never use mkdir)
 
 ### Reference Materials Guidance
