@@ -50,6 +50,8 @@ Para qualquer pessoa ou equipe que queira automatizar trabalho operacional e rep
 npx opensquad init
 ```
 
+> **Nota:** o comando `/opensquad` deve ser digitado no chat da sua IDE aberta nesta pasta. Ele nao e um comando do `bash` ou do terminal.
+
 Para atualizar uma instalação existente:
 
 ```bash
@@ -200,7 +202,7 @@ Example:
 npx opensquad init
 ```
 
-> **Note:** Always run your AI IDE from inside the project directory where you ran `npx opensquad init`. The `/opensquad` command is only available when the IDE is opened in that folder.
+> **Note:** Always run your AI IDE from inside the project directory where you ran `npx opensquad init`. Type `/opensquad` in the IDE chat, not in your shell or terminal.
 
 To update an existing installation:
 

@@ -3,7 +3,7 @@
   "askName": "What's your name? → ",
   "atLeastOneIde": "Please select at least one IDE.",
   "chooseIdes": "Which IDEs/tools do you use? (select all that apply)",
-  "step1Codex": "1. See AGENTS.md in your project root for Codex instructions",
+  "step1Codex": "1. Open this directory in Codex and send /opensquad in the chat. This command does not run in your shell. See AGENTS.md in the project root for details.",
   "step1Antigravity": "1. Open Antigravity, type / in the chat and select opensquad to get started.",
   "step1Cursor": "1. Open Cursor, type / in the chat and select opensquad to get started.",
   "step1Opencode": "1. Open OpenCode and type /opensquad to get started.",

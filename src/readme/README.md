@@ -10,7 +10,7 @@ Abra esta pasta no seu IDE e digite:
 /opensquad
 ```
 
-Isso abre o menu principal. De lá você pode criar squads, executá-los e mais.
+Isso abre o menu principal. Digite esse comando no chat da IDE, nao no terminal bash. De la voce pode criar squads, executa-los e mais.
 
 Você também pode ser direto — descreva o que quer em linguagem natural:
 
@@ -71,7 +71,7 @@ Open this folder in your IDE and type:
 /opensquad
 ```
 
-This opens the main menu. From there you can create squads, run them, and more.
+This opens the main menu. Type this command in the IDE chat, not in your shell. From there you can create squads, run them, and more.
 
 You can also be direct — describe what you want in plain language:
 
