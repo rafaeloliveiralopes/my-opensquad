@@ -1,0 +1,74 @@
+name: "KTLead Instagram Clínicas"
+code: "ktlead-instagram-clinicas"
+description: >
+  Cria conteúdo estratégico para Instagram Feed da KTLead com foco em clínicas:
+  carrosséis e posts estáticos de topo e meio de funil, orientados por
+  autoridade, diagnóstico e conversão consultiva.
+icon: "🏥"
+version: "1.0.0"
+created: "2026-04-11"
+mode: "alta-performance"
+
+company: "_opensquad/_memory/company.md"
+preferences: "_opensquad/_memory/preferences.md"
+memory: "_memory/memories.md"
+
+target_audience: "Clínicas como nicho principal e mercado imobiliário como nicho secundário"
+platform: "Instagram Feed"
+format: "instagram-feed"
+performance_mode: "alta-performance"
+
+skills:
+  - web_search
+  - web_fetch
+  - image-creator
+  - image-fetcher
+
+data:
+  - pipeline/data/research-brief.md
+  - pipeline/data/domain-framework.md
+  - pipeline/data/quality-criteria.md
+  - pipeline/data/output-examples.md
+  - pipeline/data/anti-patterns.md
+  - pipeline/data/tone-of-voice.md
+
+agents:
+  - id: researcher
+    name: "Rita Radar"
+    icon: "🔍"
+    custom: agents/researcher.agent.md
+
+  - id: niche-strategist
+    name: "Nina Nicho"
+    icon: "🩺"
+    custom: agents/niche-strategist.agent.md
+
+  - id: angle-strategist
+    name: "Alice Ângulo"
+    icon: "🎯"
+    custom: agents/angle-strategist.agent.md
+
+  - id: copywriter
+    name: "Cadu Copy"
+    icon: "✍️"
+    custom: agents/copywriter.agent.md
+
+  - id: image-designer
+    name: "Diana Design"
+    icon: "🎨"
+    custom: agents/image-designer.agent.md
+
+  - id: reviewer
+    name: "Vera Veredito"
+    icon: "✅"
+    custom: agents/reviewer.agent.md
+
+  - id: publisher
+    name: "Paulo Publica"
+    icon: "📤"
+    custom: agents/publisher.agent.md
+
+pipeline:
+  entry: pipeline/pipeline.yaml
+
+output_dir: output/

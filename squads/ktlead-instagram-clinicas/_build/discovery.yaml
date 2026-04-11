@@ -1,0 +1,37 @@
+squad_code: "ktlead-instagram-clinicas"
+purpose: "Criar conteúdo estratégico para Instagram Feed da KTLead com foco em clínicas, combinando autoridade e conversão para topo e meio de funil."
+domain: "content"
+
+company:
+  name: "KTLead"
+  tone: "Direto, prático, orientado a resultado, claro e comercial sem exagero"
+  products: "Tráfego pago, sites, landing pages, automações, WhatsApp, chatbots, copywriting e estruturação comercial"
+
+language: "Português (Brasil)"
+
+context:
+  audience: "Potenciais clientes frios e leads já interessados, com foco principal em clínicas e secundário em imobiliárias/corretores"
+  platforms: "Instagram Feed"
+  tone: "Híbrido: educativo + autoridade + comercial, sem parecer agressivo"
+
+tools_needed:
+  - "web_search"
+  - "web_fetch"
+  - "image-creator"
+  - "image-fetcher"
+
+investigation:
+  enabled: true
+  profiles:
+    - url: "https://www.instagram.com/healthgrow.oficial/"
+      platform: "instagram"
+      investigation_mode: "profile_3"
+    - url: "https://www.instagram.com/digitalinout/"
+      platform: "instagram"
+      investigation_mode: "profile_3"
+    - url: "https://www.instagram.com/raddardigital/"
+      platform: "instagram"
+      investigation_mode: "profile_1"
+
+target_formats:
+  - "instagram-feed"

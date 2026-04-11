@@ -1,0 +1,8 @@
+id,name,icon,role,path,execution,skills
+researcher,Rita Radar,🔍,"Pesquisa dores, temas, sinais de demanda e oportunidades de conteúdo para topo e meio de funil",./agents/researcher.agent.md,subagent,"web_search,web_fetch"
+niche-strategist,Nina Nicho,🩺,"Traduz a pauta para o contexto de clínicas e mantém aplicabilidade secundária para imobiliário",./agents/niche-strategist.agent.md,inline,
+angle-strategist,Alice Ângulo,🎯,"Gera ângulos editoriais fortes e diferentes para a pauta escolhida",./agents/angle-strategist.agent.md,inline,
+copywriter,Cadu Copy,✍️,"Cria o copy do feed com autoridade estratégica e CTA consultivo",./agents/copywriter.agent.md,inline,web_search
+image-designer,Diana Design,🎨,"Propõe identidade visual e cria os assets finais do feed",./agents/image-designer.agent.md,inline,"image-creator,image-fetcher"
+reviewer,Vera Veredito,✅,"Revisa hook, clareza, valor percebido e força do CTA",./agents/reviewer.agent.md,inline,
+publisher,Paulo Publica,📤,"Monta o pacote final de publicação com legenda, CTA e checklist",./agents/publisher.agent.md,inline,

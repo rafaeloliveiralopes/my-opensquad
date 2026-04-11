@@ -1,0 +1,153 @@
+name: "Pipeline — KTLead Instagram Clínicas"
+version: "1.0.0"
+created: "2026-04-11"
+squad: "ktlead-instagram-clinicas"
+
+description: >
+  Pipeline de criação de conteúdo de Instagram Feed para a KTLead com foco em
+  clínicas, autoridade estratégica e conversão consultiva.
+
+mode: "alta-performance"
+
+steps:
+  - id: step-01
+    name: "Entrada de Conteúdo"
+    type: checkpoint
+    file: steps/step-01-input-content.md
+
+  - id: step-02
+    name: "Mapeamento de Pautas"
+    type: agent
+    agent: researcher
+    tasks:
+      - find-and-rank-opportunities
+    file: steps/step-02-map-opportunities.md
+    depends_on: step-01
+
+  - id: step-03
+    name: "Seleção de Pauta"
+    type: checkpoint
+    file: steps/step-03-select-opportunity.md
+    depends_on: step-02
+
+  - id: step-04
+    name: "Tradução para Nicho"
+    type: agent
+    agent: niche-strategist
+    tasks:
+      - translate-to-clinic-context
+    file: steps/step-04-translate-context.md
+    depends_on: step-03
+
+  - id: step-05
+    name: "Geração de Ângulos"
+    type: agent
+    agent: angle-strategist
+    tasks:
+      - generate-angles
+    file: steps/step-05-generate-angles.md
+    depends_on: step-04
+
+  - id: step-06
+    name: "Seleção de Ângulo"
+    type: checkpoint
+    file: steps/step-06-select-angle.md
+    depends_on: step-05
+
+  - id: step-07
+    name: "Criação do Copy"
+    type: agent
+    agent: copywriter
+    tasks:
+      - create-feed-copy
+    file: steps/step-07-create-copy.md
+    depends_on: step-06
+
+  - id: step-08
+    name: "Aprovação do Copy"
+    type: checkpoint
+    file: steps/step-08-approve-copy.md
+    depends_on: step-07
+
+  - id: step-09
+    name: "Proposta Visual"
+    type: agent
+    agent: image-designer
+    tasks:
+      - propose-visual-identities
+    file: steps/step-09-propose-visuals.md
+    depends_on: step-08
+
+  - id: step-10
+    name: "Seleção Visual"
+    type: checkpoint
+    file: steps/step-10-select-visual.md
+    depends_on: step-09
+
+  - id: step-11
+    name: "Criação dos Assets"
+    type: agent
+    agent: image-designer
+    tasks:
+      - create-post-assets
+      - render-export
+    file: steps/step-11-create-assets.md
+    depends_on: step-10
+
+  - id: step-12
+    name: "Aprovação dos Assets"
+    type: checkpoint
+    file: steps/step-12-approve-assets.md
+    depends_on: step-11
+
+  - id: step-13
+    name: "Revisão Final"
+    type: agent
+    agent: reviewer
+    tasks:
+      - score-content
+      - generate-feedback
+    file: steps/step-13-review.md
+    depends_on: step-12
+
+  - id: step-14
+    name: "Aprovação Final"
+    type: checkpoint
+    file: steps/step-14-final-approval.md
+    depends_on: step-13
+
+  - id: step-15
+    name: "Preparação para Publicação"
+    type: agent
+    agent: publisher
+    tasks:
+      - prepare-publication
+    file: steps/step-15-prepare-publication.md
+    depends_on: step-14
+
+checkpoints:
+  - step-01
+  - step-03
+  - step-06
+  - step-08
+  - step-10
+  - step-12
+  - step-14
+
+output:
+  artifacts:
+    - output/content-brief.md
+    - output/ranked-opportunities.yaml
+    - output/selected-opportunity.yaml
+    - output/niche-brief.yaml
+    - output/angles-brief.yaml
+    - output/selected-angle.yaml
+    - output/feed-draft.md
+    - output/visual-identities.yaml
+    - output/selected-visual.yaml
+    - output/design-system.md
+    - output/assets/
+    - output/assets-manifest.json
+    - output/review-score.md
+    - output/review-final.md
+    - output/publish-ready.md
